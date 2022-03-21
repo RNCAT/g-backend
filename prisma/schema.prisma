@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  room_id      Int       @id @default(autoincrement())
+  number       String    @unique @map("room_number") @db.VarChar(5)
+  price        Float     @map("room_price") @db.Float
+  room_type_id Int
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  RoomType     RoomType  @relation(fields: [room_type_id], references: [room_type_id])
+  Booking      Booking[]
+
+  @@map("room")
+}
+
+model RoomType {
+  room_type_id Int      @id @default(autoincrement())
+  name         String   @unique @map("room_type_name") @db.VarChar(20)
+  bed          String   @map("room_type_bed") @db.VarChar(15)
+  detail       String   @map("room_type_detail") @db.VarChar(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  rooms        Room[]
+
+  @@map("room_type")
+}
+
+model Customer {
+  customer_id Int       @id @default(autoincrement())
+  prefix      String    @map("customer_prefix") @db.VarChar(10)
+  name        String    @map("customer_name") @db.VarChar(15)
+  surname     String    @map("customer_surname") @db.VarChar(15)
+  email       String    @unique @map("customer_email") @db.VarChar(30)
+  password    String    @map("customer_password") @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Booking     Booking[]
+
+  @@map("customer")
+}
+
+model Authority {
+  authority_id Int       @id @default(autoincrement())
+  prefix       String    @map("authority_prefix") @db.VarChar(10)
+  name         String    @map("authority_name") @db.VarChar(15)
+  surname      String    @map("authority_surname") @db.VarChar(15)
+  email        String    @unique @map("authority_email") @db.VarChar(30)
+  password     String    @map("authority_password") @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  Booking      Booking[]
+
+  @@map("authority")
+}
+
+model Booking {
+  booking_id        Int           @id @default(autoincrement())
+  start             DateTime      @map("booking_start") @db.DateTime
+  end               DateTime      @map("booking_end") @db.DateTime
+  booking_status_id Int
+  customer_id       Int
+  authority_id      Int
+  room_id           Int
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  BookingStatus     BookingStatus @relation(fields: [booking_status_id], references: [booking_status_id])
+  Customer          Customer      @relation(fields: [customer_id], references: [customer_id])
+  Authority         Authority     @relation(fields: [authority_id], references: [authority_id])
+  Room              Room          @relation(fields: [room_id], references: [room_id])
+  payments          Payment[]
+  CheckIn           CheckIn[]
+
+  @@map("booking")
+}
+
+model BookingStatus {
+  booking_status_id Int       @id @default(autoincrement())
+  name              String    @map("booking_status_name") @db.VarChar(20)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  booking           Booking[]
+
+  @@map("booking_status")
+}
+
+model Payment {
+  payment_id Int      @id @default(autoincrement())
+  image      String   @map("payment_image") @db.Text
+  booking_id Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  booking    Booking  @relation(fields: [booking_id], references: [booking_id])
+
+  @@map("payment")
+}
+
+model CheckIn {
+  check_in_id Int        @id @default(autoincrement())
+  booking_id  Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  booking     Booking    @relation(fields: [booking_id], references: [booking_id])
+  check_out   CheckOut[]
+
+  @@map("check_in")
+}
+
+model CheckOut {
+  check_out_id Int      @id @default(autoincrement())
+  check_in_id  Int
+  CheckIn      CheckIn  @relation(fields: [check_in_id], references: [check_in_id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("check_out")
+}
