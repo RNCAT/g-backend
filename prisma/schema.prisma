@@ -62,8 +62,8 @@ model Authority {
 
 model Booking {
   booking_id        Int           @id @default(autoincrement())
-  start             DateTime      @map("booking_start") @db.DateTime
-  end               DateTime      @map("booking_end") @db.DateTime
+  start             DateTime      @map("booking_start") @db.Date
+  end               DateTime      @map("booking_end") @db.Date
   booking_status_id Int
   customer_id       Int
   authority_id      Int

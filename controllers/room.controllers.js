@@ -1,9 +1,37 @@
+// const { Prisma } = require('@prisma/client')
 const prisma = require('../models/prisma')
 
 async function getRooms(req, res) {
-  const rooms = await prisma.room.findMany()
+  const rooms = await prisma.room.findMany({
+    include: {
+      RoomType: { select: { name: true } },
+    },
+  })
 
   return res.status(200).json(rooms)
+}
+
+async function getSearchRooms(req, res) {
+  const { checkInDate, checkOutDate } = req.body
+
+  const startDate = new Date(checkInDate)
+  const endDate = new Date(checkOutDate)
+  endDate.setHours(7, 0, 0, 0)
+
+  const searchDates = await prisma.booking.findMany({
+    where: { AND: [{ start: { gte: startDate } }, { end: { lte: endDate } }] },
+    select: { room_id: true },
+  })
+
+  // eslint-disable-next-line camelcase
+  const roomIdList = searchDates.map(({ room_id }) => room_id)
+
+  const searchRooms = await prisma.room.findMany({
+    where: { room_id: { notIn: roomIdList } },
+    include: { RoomType: { select: { name: true } } },
+  })
+
+  return res.status(200).json(searchRooms)
 }
 
 async function getRoom(req, res) {
@@ -46,6 +74,7 @@ async function DeleteRoom(req, res) {
 
 module.exports = {
   getRooms,
+  getSearchRooms,
   getRoom,
   AddRoom,
   UpdateRoom,
