@@ -64,6 +64,7 @@ model Booking {
   booking_id        Int           @id @default(autoincrement())
   start             DateTime      @map("booking_start") @db.Date
   end               DateTime      @map("booking_end") @db.Date
+  price             Float         @map("booking_price") @db.Float
   booking_status_id Int
   customer_id       Int
   authority_id      Int

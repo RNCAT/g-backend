@@ -28,7 +28,7 @@ async function getSearchRooms(req, res) {
 
   const searchRooms = await prisma.room.findMany({
     where: { room_id: { notIn: roomIdList } },
-    include: { RoomType: { select: { name: true } } },
+    include: { RoomType: { select: { name: true, detail: true } } },
   })
 
   return res.status(200).json(searchRooms)
