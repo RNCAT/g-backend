@@ -15,5 +15,6 @@ app.use('/room-types', router.roomType)
 app.use('/rooms', router.room)
 app.use('/authorities', router.authority)
 app.use('/customers', router.customer)
+app.use('/booking', router.booking)
 
 app.listen(port)

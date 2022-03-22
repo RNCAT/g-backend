@@ -16,12 +16,15 @@ async function getSearchRooms(req, res) {
 
   const startDate = new Date(checkInDate)
   const endDate = new Date(checkOutDate)
+  startDate.setHours(7, 0, 0, 0)
   endDate.setHours(7, 0, 0, 0)
 
   const searchDates = await prisma.booking.findMany({
-    where: { AND: [{ start: { gte: startDate } }, { end: { lte: endDate } }] },
+    where: { AND: [{ start: { lte: startDate } }, { end: { gte: endDate } }] },
     select: { room_id: true },
   })
+
+  console.log(searchDates)
 
   // eslint-disable-next-line camelcase
   const roomIdList = searchDates.map(({ room_id }) => room_id)
