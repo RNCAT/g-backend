@@ -2,7 +2,12 @@
 const prisma = require('../models/prisma')
 
 async function getBooking(req, res) {
-  const booking = await prisma.booking.findMany()
+  const booking = await prisma.booking.findMany({
+    include: {
+      Customer: { select: { prefix: true, name: true, surname: true } },
+      BookingStatus: { select: { booking_status_id: true, name: true } },
+    },
+  })
 
   return res.status(200).json(booking)
 }
@@ -26,18 +31,22 @@ async function AddBooking(req, res) {
 }
 
 async function paidBooking(req, res) {
-  const { bookingId } = req.params
+  const { bookingId } = req.body
 
   await prisma.booking.update({
     data: { booking_status_id: 2 },
     where: { booking_id: Number(bookingId) },
   })
 
+  await prisma.payment.create({
+    data: { booking_id: Number(bookingId) },
+  })
+
   return res.status(200).end()
 }
 
 async function checkInBooking(req, res) {
-  const { bookingId } = req.params
+  const { bookingId } = req.body
 
   await prisma.booking.update({
     data: { booking_status_id: 5 },
@@ -52,22 +61,26 @@ async function checkInBooking(req, res) {
 }
 
 async function checkOutBooking(req, res) {
-  const { bookingId } = req.params
+  const { bookingId } = req.body
 
   await prisma.booking.update({
     data: { booking_status_id: 6 },
     where: { booking_id: Number(bookingId) },
   })
 
+  const checkIn = await prisma.checkIn.findFirst({
+    where: { booking_id: Number(bookingId) },
+  })
+
   const checkOut = await prisma.checkOut.create({
-    data: { booking_id: Number(bookingId) },
+    data: { check_in_id: checkIn.check_in_id },
   })
 
   return res.status(201).json(checkOut)
 }
 
 async function cancelBooking(req, res) {
-  const { bookingId } = req.params
+  const { bookingId } = req.body
 
   await prisma.booking.update({
     data: { booking_status_id: 4 },

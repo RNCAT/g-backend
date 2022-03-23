@@ -24,8 +24,6 @@ async function getSearchRooms(req, res) {
     select: { room_id: true },
   })
 
-  console.log(searchDates)
-
   // eslint-disable-next-line camelcase
   const roomIdList = searchDates.map(({ room_id }) => room_id)
 

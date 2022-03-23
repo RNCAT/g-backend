@@ -93,7 +93,7 @@ model BookingStatus {
 
 model Payment {
   payment_id Int      @id @default(autoincrement())
-  image      String   @map("payment_image") @db.Text
+  image      String?  @map("payment_image") @db.Text
   booking_id Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
