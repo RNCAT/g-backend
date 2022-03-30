@@ -39,7 +39,41 @@ async function getMonthlyReport(req, res) {
   const { month } = req.body
 
   const selectMonth = new Date(month)
-  const plusMonth = new Date(selectMonth.getUTCFullYear(), selectMonth.getMonth, 30, 0, 0, 0, 0)
+  const plusMonth = new Date(
+    selectMonth.getUTCFullYear(),
+    selectMonth.getMonth(),
+    selectMonth.getDate() + 31,
+    0,
+    0,
+    0,
+    0
+  )
+
+  const data = await prisma.booking.findMany({
+    where: {
+      AND: [{ createdAt: { gte: selectMonth } }, { createdAt: { lte: plusMonth } }],
+    },
+    select: {
+      _count: {
+        select: { payments: true },
+      },
+      price: true,
+      booking_status_id: true,
+    },
+  })
+
+  let totalPrice = 0
+  let cancelCount = 0
+
+  data.forEach((el) => {
+    if (el.booking_status_id !== 4) {
+      totalPrice += el.price
+    } else {
+      cancelCount += 1
+    }
+  })
+
+  return res.status(200).json({ bookingCount: data.length, totalPrice, cancelCount })
 }
 
 module.exports = { getDailyReport, getMonthlyReport }

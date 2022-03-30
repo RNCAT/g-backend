@@ -4,6 +4,7 @@ const prisma = require('../models/prisma')
 async function getBooking(req, res) {
   const booking = await prisma.booking.findMany({
     include: {
+      Room: { select: { number: true } },
       Customer: { select: { prefix: true, name: true, surname: true } },
       BookingStatus: { select: { booking_status_id: true, name: true } },
     },
