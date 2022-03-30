@@ -20,7 +20,7 @@ async function getSearchRooms(req, res) {
   endDate.setHours(7, 0, 0, 0)
 
   const searchDates = await prisma.booking.findMany({
-    where: { AND: [{ start: { lte: startDate } }, { end: { gte: endDate } }] },
+    where: { AND: [{ start: { lte: startDate } }, { end: { gte: endDate } }, { booking_status_id: { not: 6 } }] },
     select: { room_id: true },
   })
 
