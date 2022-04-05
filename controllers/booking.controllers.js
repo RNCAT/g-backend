@@ -7,6 +7,7 @@ async function getBooking(req, res) {
       Room: { select: { number: true } },
       Customer: { select: { prefix: true, name: true, surname: true } },
       BookingStatus: { select: { booking_status_id: true, name: true } },
+      payments: { select: { createdAt: true } },
     },
   })
 
