@@ -73,17 +73,21 @@ async function UpdateRoom(req, res) {
 }
 
 async function DeleteRoom(req, res) {
-  const { roomId } = req.params
+  try {
+    const { roomId } = req.params
 
-  const hasBooking = await prisma.booking.count({
-    where: { customer_id: Number(roomId) },
-  })
+    const hasBooking = await prisma.booking.count({
+      where: { customer_id: Number(roomId) },
+    })
 
-  if (hasBooking) return res.status(400).json({ message: 'Cannot delete' })
+    if (hasBooking) return res.status(400).json({ message: 'Cannot delete' })
 
-  await prisma.room.delete({ where: { room_id: Number(roomId) } })
+    await prisma.room.delete({ where: { room_id: Number(roomId) } })
 
-  return res.status(204).end()
+    return res.status(204).end()
+  } catch (error) {
+    return res.status(400).json({ message: 'Cannot delete' })
+  }
 }
 
 module.exports = {
