@@ -60,6 +60,12 @@ async function UpdateAuthority(req, res) {
 async function DeleteAuthority(req, res) {
   const { authorityId } = req.params
 
+  const hasBooking = await prisma.booking.count({
+    where: { authority_id: Number(authorityId) },
+  })
+
+  if (hasBooking) return res.status(400).json({ message: 'Cannot delete' })
+
   await prisma.authority.delete({ where: { authority_id: Number(authorityId) } })
 
   return res.status(204).end()

@@ -43,6 +43,10 @@ async function updateRoomType(req, res) {
 async function deleteRoomType(req, res) {
   const { roomTypeId } = req.params
 
+  const hasRoom = await prisma.room.count({ where: { room_type_id: Number(roomTypeId) } })
+
+  if (hasRoom) return res.status(400).json({ message: 'Cannot delete' })
+
   await prisma.roomType.delete({ where: { room_type_id: Number(roomTypeId) } })
 
   return res.status(204).end()

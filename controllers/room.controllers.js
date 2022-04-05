@@ -20,7 +20,14 @@ async function getSearchRooms(req, res) {
   endDate.setHours(7, 0, 0, 0)
 
   const searchDates = await prisma.booking.findMany({
-    where: { AND: [{ start: { lte: startDate } }, { end: { gte: endDate } }, { booking_status_id: { not: 6 } }] },
+    where: {
+      AND: [
+        { start: { lte: startDate } },
+        { end: { gte: endDate } },
+        { booking_status_id: { not: 6 } },
+        { booking_status_id: { not: 4 } },
+      ],
+    },
     select: { room_id: true },
   })
 
@@ -67,6 +74,12 @@ async function UpdateRoom(req, res) {
 
 async function DeleteRoom(req, res) {
   const { roomId } = req.params
+
+  const hasBooking = await prisma.booking.count({
+    where: { customer_id: Number(roomId) },
+  })
+
+  if (hasBooking) return res.status(400).json({ message: 'Cannot delete' })
 
   await prisma.room.delete({ where: { room_id: Number(roomId) } })
 

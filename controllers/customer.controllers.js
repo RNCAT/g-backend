@@ -46,6 +46,12 @@ async function UpdateCustomer(req, res) {
 async function DeleteCustomer(req, res) {
   const { customerId } = req.params
 
+  const hasBooking = await prisma.booking.count({
+    where: { customer_id: Number(customerId) },
+  })
+
+  if (hasBooking) return res.status(400).json({ message: 'Cannot delete' })
+
   await prisma.customer.delete({ where: { customer_id: Number(customerId) } })
 
   return res.status(204).end()
